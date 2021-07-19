@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Google Ad Manager GPT Example</title>
+  <script async='async' src='https://www.googletagservices.com/tag/js/gpt.js'></script>
+  <script>
+    //Start HEAD code on the page
+    var googletag = googletag || {};
+    googletag.cmd = googletag.cmd || [];
+
+    googletag.cmd.push(function() {
+        
+        var NETWORK_KEY = '00000000000';
+
+        //Required variable for refresh
+        //Developer docs: https://developers.google.com/doubleclick-gpt/guides/control-ad-loading
+        var REFRESH_KEY = 'refresh';
+        var REFRESH_VALUE = 'true';
+        
+        //Size mapping variables
+        //Developer docs: https://developers.google.com/doubleclick-gpt/guides/ad-sizes#responsive_ads
+        var horizontal_ads_mapping = googletag.sizeMapping()
+                .addSize([0, 0], [[320, 50],[320,100],[300,50],[300,100]]) // mobile sizes
+                .addSize([980, 200], [[1300, 250],[970, 250],[970, 90],[728, 90]]) // desktop sizes
+                .build();
+
+        var vertical_ads_mapping = googletag.sizeMapping()
+                .addSize([0, 0], [[336, 280],[300,250]]) // mobile sizes
+                .addSize([980, 200], [[300, 250], [336, 280]]) // desktop sizes
+                .build();
+        
+        var mobile_ads_mapping = googletag.sizeMapping()
+                .addSize([0, 0], [[336, 280],[300,250],[320, 50],[320,100],[300,50],[300,100]]) // mobile sizes
+                .addSize([980, 200], []) // desktop sizes, empty array will not request the ad on this device
+                .build();        
+
+        
+        //start slot declaration 
+        //On the ad units that will have refresh, please add the following code on the slot declaration ".setTargeting(REFRESH_KEY,REFRESH_VALUE).setTargeting('refreshed_slot', 'false')"
+        googletag.defineSlot(`/${NETWORK_KEY}/Ad_Unit_Name_1`, [[728, 90]], 'Ad_Unit_1_Div_Id').defineSizeMapping(horizontal_ads_mapping).setTargeting(REFRESH_KEY,REFRESH_VALUE).setTargeting('refreshed_slot', 'false').addService(googletag.pubads());
+        googletag.defineSlot(`/${NETWORK_KEY}/Ad_Unit_Name_2`, [[300, 250]], 'Ad_Unit_2_Div_Id').defineSizeMapping(vertical_ads_mapping).setTargeting(REFRESH_KEY,REFRESH_VALUE).setTargeting('refreshed_slot', 'false').addService(googletag.pubads());
+        googletag.defineSlot(`/${NETWORK_KEY}/Ad_Unit_Name_3`, [[300, 250]], 'Ad_Unit_3_Div_Id').defineSizeMapping(vertical_ads_mapping).setTargeting(REFRESH_KEY,REFRESH_VALUE).setTargeting('refreshed_slot', 'false').addService(googletag.pubads());
+        googletag.defineSlot(`/${NETWORK_KEY}/Ad_Unit_Name_4_Only_Mobile`, [[300,50]], 'Ad_Unit_4_Only_Mobile_Div_Id').defineSizeMapping(mobile_ads_mapping).setTargeting(REFRESH_KEY,REFRESH_VALUE).setTargeting('refreshed_slot', 'false').addService(googletag.pubads());
+        //end slot declaration
+        
+        //Start refresh
+        //developer docs: https://developers.google.com/doubleclick-gpt/guides/control-ad-loading
+        var SECONDS_TO_WAIT_AFTER_VIEWABILITY = 30;
+        googletag.pubads().addEventListener('impressionViewable', function(event) {
+        var slot = event.slot;
+        if (slot.getTargeting(REFRESH_KEY).indexOf(REFRESH_VALUE) > -1) {
+            setTimeout(function() {
+                if (slot.getTargeting('refreshed_slot')) {
+                    slot.setTargeting('refreshed_slot', 'true');
+                }
+                googletag.pubads().refresh([slot]);
+                }, SECONDS_TO_WAIT_AFTER_VIEWABILITY * 1000);
+            }
+        });
+        //End refresh
+        
+        //Start Lazy Load
+        //developer docs: https://developers.google.com/doubleclick-gpt/samples/lazy-loading
+        googletag.pubads().enableLazyLoad({
+            fetchMarginPercent: 200,
+            renderMarginPercent: 200,
+            mobileScaling: 2.0 
+        });
+        //End lazy load        
+        
+        //key values segmentation
+        //developer docs: https://developers.google.com/doubleclick-gpt/guides/key-value-targeting
+        googletag.pubads().setTargeting('session', ['Category Name 1', 'Category Name 2']);
+        googletag.pubads().setTargeting('tags', ['category tag 1','category tag 2','category tag 3']);
+
+        //googletag.pubads().enableSingleRequest(); //with this line active, lazy load won't work
+        googletag.pubads().collapseEmptyDivs();
+        googletag.pubads().setCentering(true);
+        googletag.enableServices(); 
+
+    });
+  //End HEAD code
+  </script>
+  <style>
+    .horizontal-ad-class{
+        height: 250px;
+        background: #eee;
+        padding: 10px;
+        margin: 20px 0;
+    }
+    .vertical-ad-class{
+        height: 300px;
+        background: #eee;
+        padding: 10px;
+        margin: 20px 0;
+    }
+    .only-mobile-ad-class{
+        height: 300px;
+        background: #eee;
+        padding: 10px;
+        margin: 20px 0;
+        display: none;
+    }
+    @media only screen and (max-width: 600px) {
+        .only-mobile-ad-class{
+            display: block;
+        }
+    }
+  </style>
+</head>
+<body>
+<!-- Banner 1 -->
+<div id="Ad_Unit_1_Div_Id" class="horizontal-ad-class">
+    <h1>Ad Unit 1</h1>
+    <script>
+        googletag.cmd.push(function() { googletag.display('Ad_Unit_Name_1'); });
+    </script>
+</div>
+
+<div id="Ad_Unit_2_Div_Id" class="vertical-ad-class">
+    <h1>Ad Unit 2</h1>
+    <script>
+        googletag.cmd.push(function() { googletag.display('Ad_Unit_Name_2'); });
+    </script>
+</div>
+
+<div id="Ad_Unit_3_Div_Id" class="vertical-ad-class">
+    <h1>Ad Unit 3</h1>
+    <script>
+        googletag.cmd.push(function() { googletag.display('Ad_Unit_Name_3'); });
+    </script>
+</div>
+
+<div id="Ad_Unit_4_Only_Mobile_Div_Id" class="only-mobile-ad-class">
+    <h1>Ad Unit 4</h1>
+    <script>
+        googletag.cmd.push(function() { googletag.display('Ad_Unit_Name_4_Only_Mobile'); });
+    </script>
+</div>
+
+</body>
+</html>
+
