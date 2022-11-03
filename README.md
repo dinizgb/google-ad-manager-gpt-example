@@ -1,1 +1,1 @@
-# google-ad-manager-gpt-example
+# Google AdManager gpt example
